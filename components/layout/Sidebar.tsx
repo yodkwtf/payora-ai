@@ -65,14 +65,13 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-3">
+      <div className={cn("flex p-3", collapsed ? "justify-center" : "justify-end")}>
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setCollapsed((c) => !c)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!collapsed}
-          className="w-full justify-center"
         >
           {collapsed ? (
             <PanelLeft className="h-5 w-5" />

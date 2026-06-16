@@ -13,8 +13,9 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { LogoPicker } from "./LogoPicker";
 import { CATEGORIES, BILLING_CYCLES, STATUSES, CURRENCIES } from "@/lib/constants";
-import type { Subscription } from "@/lib/types";
+import type { Subscription, Category } from "@/lib/types";
 import { currencySymbol } from "@/lib/utils";
 
 export type SubscriptionDraft = Omit<Subscription, "id">;
@@ -39,7 +40,7 @@ function nextMonthISO() {
 
 export function SubscriptionForm({
   initial,
-  defaultCurrency = "USD",
+  defaultCurrency = "INR",
   onSubmit,
   onCancel,
   formId = "subscription-form",
@@ -104,17 +105,28 @@ export function SubscriptionForm({
   return (
     <form id={formId} onSubmit={handleSubmit} className="space-y-4" noValidate>
       <div className="space-y-1.5">
-        <Label htmlFor="name">Name</Label>
-        <Input
-          id="name"
-          value={values.name}
-          onChange={(e) => set("name", e.target.value)}
-          placeholder="e.g. Netflix"
-          aria-required="true"
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? "name-error" : undefined}
-          autoFocus
-        />
+        <Label htmlFor="name">Name & icon</Label>
+        <div className="flex gap-2">
+          <LogoPicker
+            value={values.logo ?? ""}
+            name={values.name}
+            category={values.category as Category}
+            onChange={(slug) => set("logo", slug)}
+          />
+          <Input
+            id="name"
+            value={values.name}
+            onChange={(e) => set("name", e.target.value)}
+            placeholder="e.g. Netflix"
+            aria-required="true"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "name-error" : undefined}
+            autoFocus
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Pick an icon on the left, or search a brand name to find one.
+        </p>
         {fieldErr("name")}
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Download, Upload, Trash2, Coins, BellRing, AlertTriangle } from "lucide-react";
+import { Download, Upload, Trash2, Coins, BellRing, AlertTriangle, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useStore } from "@/lib/store";
+import { useToast } from "@/components/ui/toast";
 import { CURRENCIES, REMINDER_THRESHOLDS } from "@/lib/constants";
 import type { CurrencyCode, Subscription } from "@/lib/types";
 
@@ -30,11 +31,11 @@ export default function SettingsPage() {
   const updateSettings = useStore((s) => s.updateSettings);
   const subscriptions = useStore((s) => s.subscriptions);
   const importData = useStore((s) => s.importData);
+  const loadSampleData = useStore((s) => s.loadSampleData);
   const clearAll = useStore((s) => s.clearAll);
 
+  const { toast } = useToast();
   const fileRef = React.useRef<HTMLInputElement>(null);
-  const [importError, setImportError] = React.useState<string>("");
-  const [importedCount, setImportedCount] = React.useState<number | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
 
   const handleExport = () => {
@@ -46,11 +47,13 @@ export default function SettingsPage() {
     a.download = `subtrack-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    toast({
+      title: "Data exported",
+      description: `${subscriptions.length} subscription${subscriptions.length === 1 ? "" : "s"} saved to JSON.`,
+    });
   };
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImportError("");
-    setImportedCount(null);
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -64,13 +67,38 @@ export default function SettingsPage() {
             : [];
         if (subs.length === 0) throw new Error("No subscriptions found in file.");
         importData({ subscriptions: subs, settings: data.settings });
-        setImportedCount(subs.length);
+        toast({
+          title: "Data imported",
+          description: `${subs.length} subscription${subs.length === 1 ? "" : "s"} loaded.`,
+        });
       } catch (err) {
-        setImportError(err instanceof Error ? err.message : "Invalid JSON file.");
+        toast({
+          title: "Import failed",
+          description: err instanceof Error ? err.message : "Invalid JSON file.",
+          variant: "error",
+        });
       }
     };
     reader.readAsText(file);
     e.target.value = "";
+  };
+
+  const handleRestore = () => {
+    loadSampleData();
+    toast({
+      title: "Sample data restored",
+      description: "8 example subscriptions are back.",
+    });
+  };
+
+  const handleClearAll = () => {
+    clearAll();
+    setConfirmOpen(false);
+    toast({
+      title: "All data cleared",
+      description: "Your subscriptions and activity were removed.",
+      variant: "info",
+    });
   };
 
   return (
@@ -144,6 +172,9 @@ export default function SettingsPage() {
           <Button variant="outline" onClick={() => fileRef.current?.click()}>
             <Upload className="h-4 w-4" /> Import JSON
           </Button>
+          <Button variant="outline" onClick={handleRestore}>
+            <Sparkles className="h-4 w-4" /> Restore sample data
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -153,16 +184,6 @@ export default function SettingsPage() {
             aria-hidden
           />
         </div>
-        {importedCount !== null && (
-          <p className="mt-3 text-sm text-emerald-400" role="status">
-            Imported {importedCount} subscription{importedCount === 1 ? "" : "s"}.
-          </p>
-        )}
-        {importError && (
-          <p className="mt-3 text-sm text-destructive" role="alert">
-            {importError}
-          </p>
-        )}
       </Card>
 
       {/* Danger zone */}
@@ -192,13 +213,7 @@ export default function SettingsPage() {
             <DialogClose asChild>
               <Button variant="ghost">Cancel</Button>
             </DialogClose>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                clearAll();
-                setConfirmOpen(false);
-              }}
-            >
+            <Button variant="destructive" onClick={handleClearAll}>
               Yes, delete everything
             </Button>
           </DialogFooter>

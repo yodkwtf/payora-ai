@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import type { Subscription } from "@/lib/types";
 import { CategoryBadge, StatusBadge } from "./badges";
+import { SubscriptionLogo } from "./SubscriptionLogo";
 import {
   daysUntil,
   formatCurrency,
   renewalUrgency,
-  resolveLogo,
   urgencyLabel,
   cn,
 } from "@/lib/utils";
@@ -41,9 +41,7 @@ export function SubscriptionCard({ sub, view, threshold, onClick }: Props) {
         whileHover={{ x: 4 }}
         className="glass flex w-full items-center gap-4 rounded-xl p-3.5 text-left focus-ring"
       >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-xl" aria-hidden>
-          {resolveLogo(sub)}
-        </span>
+        <SubscriptionLogo sub={sub} size={44} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-medium">{sub.name}</span>
@@ -75,9 +73,7 @@ export function SubscriptionCard({ sub, view, threshold, onClick }: Props) {
       className="glass group relative flex flex-col gap-4 overflow-hidden rounded-2xl p-5 text-left focus-ring"
     >
       <div className="flex items-start justify-between">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-secondary text-2xl" aria-hidden>
-          {resolveLogo(sub)}
-        </span>
+        <SubscriptionLogo sub={sub} size={48} />
         <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
 

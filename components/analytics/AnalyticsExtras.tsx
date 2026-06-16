@@ -5,7 +5,8 @@ import { Crown, Hourglass, Repeat } from "lucide-react";
 import { useSpendSummary } from "@/hooks/useSpendSummary";
 import { useStore } from "@/lib/store";
 import { Card } from "@/components/ui/card";
-import { formatCurrency, resolveLogo, toAnnual } from "@/lib/utils";
+import { formatCurrency, toAnnual } from "@/lib/utils";
+import { SubscriptionLogo } from "@/components/subscriptions/SubscriptionLogo";
 
 export function BillingRatioCard() {
   const { billingRatio } = useSpendSummary();
@@ -66,9 +67,7 @@ export function CalloutCards() {
         </div>
         {mostExpensive ? (
           <div className="mt-3 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-xl" aria-hidden>
-              {resolveLogo(mostExpensive)}
-            </span>
+            <SubscriptionLogo sub={mostExpensive} size={44} />
             <div>
               <p className="font-semibold">{mostExpensive.name}</p>
               <p className="text-sm text-muted-foreground">
@@ -90,9 +89,7 @@ export function CalloutCards() {
         </div>
         {longestHeld ? (
           <div className="mt-3 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary text-xl" aria-hidden>
-              {resolveLogo(longestHeld)}
-            </span>
+            <SubscriptionLogo sub={longestHeld} size={44} />
             <div>
               <p className="font-semibold">{longestHeld.name}</p>
               <p className="text-sm text-muted-foreground">

@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { differenceInCalendarDays, parseISO, isValid } from "date-fns";
-import type { BillingCycle, Subscription, Category } from "./types";
-import { CURRENCY_SYMBOLS, BRAND_EMOJI, CATEGORY_EMOJI } from "./constants";
+import type { BillingCycle, Subscription } from "./types";
+import { CURRENCY_SYMBOLS } from "./constants";
 import type { CurrencyCode } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
@@ -81,14 +81,6 @@ export function urgencyLabel(days: number): string {
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
   return `in ${days} days`;
-}
-
-/** Resolve an emoji/logo for a subscription */
-export function resolveLogo(sub: Pick<Subscription, "name" | "logo" | "category">): string {
-  if (sub.logo) return sub.logo;
-  const brand = BRAND_EMOJI[sub.name.trim().toLowerCase()];
-  if (brand) return brand;
-  return CATEGORY_EMOJI[sub.category as Category] ?? "📦";
 }
 
 /** Simple fuzzy match — every char of query appears in order in target */

@@ -11,6 +11,7 @@ import {
 import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useStore } from "@/lib/store";
+import { useToast } from "@/components/ui/toast";
 import type { Subscription } from "@/lib/types";
 
 interface EditorContextValue {
@@ -32,6 +33,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [editing, setEditing] = React.useState<Subscription | null>(null);
   const { addSubscription, updateSubscription } = useSubscriptions();
   const defaultCurrency = useStore((s) => s.settings.currency);
+  const { toast } = useToast();
 
   const openAdd = React.useCallback(() => {
     setEditing(null);
@@ -71,8 +73,13 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
             defaultCurrency={defaultCurrency}
             onCancel={() => setOpen(false)}
             onSubmit={(draft) => {
-              if (editing) updateSubscription(editing.id, draft);
-              else addSubscription(draft);
+              if (editing) {
+                updateSubscription(editing.id, draft);
+                toast({ title: "Subscription updated", description: draft.name });
+              } else {
+                addSubscription(draft);
+                toast({ title: "Subscription added", description: draft.name });
+              }
               setOpen(false);
             }}
           />

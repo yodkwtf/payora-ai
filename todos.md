@@ -1,0 +1,3 @@
+- [ ] Fix the scroll for the brand icons tab
+- [ ] Fix the default currency to INR
+- [ ] Add condition to prevent duplicate subscriptions

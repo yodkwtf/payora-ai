@@ -22,6 +22,7 @@ interface SubscriptionState {
 
   // data management
   importData: (data: { subscriptions: Subscription[]; settings?: Settings }) => void;
+  loadSampleData: () => void;
   clearAll: () => void;
   setHydrated: (v: boolean) => void;
 }
@@ -45,7 +46,7 @@ export const useStore = create<SubscriptionState>()(
     (set, get) => ({
       subscriptions: SEED_SUBSCRIPTIONS,
       activity: [],
-      settings: { currency: "USD", reminderThreshold: 7 },
+      settings: { currency: "INR", reminderThreshold: 7 },
       hydrated: false,
 
       addSubscription: (sub) => {
@@ -124,11 +125,17 @@ export const useStore = create<SubscriptionState>()(
           activity: logActivity(state.activity, "added", "Imported data"),
         })),
 
+      loadSampleData: () =>
+        set((state) => ({
+          subscriptions: SEED_SUBSCRIPTIONS,
+          activity: logActivity(state.activity, "added", "Sample data"),
+        })),
+
       clearAll: () =>
         set({
           subscriptions: [],
           activity: [],
-          settings: { currency: "USD", reminderThreshold: 7 },
+          settings: { currency: "INR", reminderThreshold: 7 },
         }),
 
       setHydrated: (v) => set({ hydrated: v }),

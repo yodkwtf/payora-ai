@@ -69,6 +69,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
   {
     id: "1",
     name: "Netflix",
+    logo: "netflix",
     category: "Streaming",
     amount: 15.99,
     currency: "USD",
@@ -94,6 +95,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
   {
     id: "3",
     name: "GitHub Pro",
+    logo: "github",
     category: "Developer Tools",
     amount: 4,
     currency: "USD",
@@ -106,6 +108,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
   {
     id: "4",
     name: "Vercel Pro",
+    logo: "vercel",
     category: "Cloud",
     amount: 20,
     currency: "USD",
@@ -118,6 +121,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
   {
     id: "5",
     name: "Figma",
+    logo: "figma",
     category: "SaaS",
     amount: 12,
     currency: "USD",
@@ -137,11 +141,11 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     nextRenewalDate: "2027-01-15",
     startDate: "2024-01-15",
     status: "Active",
-    logo: "🌐",
   },
   {
     id: "7",
     name: "Spotify",
+    logo: "spotify",
     category: "Streaming",
     amount: 9.99,
     currency: "USD",
@@ -154,6 +158,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
   {
     id: "8",
     name: "Linear",
+    logo: "linear",
     category: "SaaS",
     amount: 8,
     currency: "USD",

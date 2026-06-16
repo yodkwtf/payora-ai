@@ -9,11 +9,11 @@ import {
   daysUntil,
   formatCurrency,
   renewalUrgency,
-  resolveLogo,
   urgencyLabel,
   cn,
 } from "@/lib/utils";
 import type { Urgency } from "@/lib/utils";
+import { SubscriptionLogo } from "@/components/subscriptions/SubscriptionLogo";
 import { useEditor } from "@/components/editor-context";
 
 const URGENCY_STYLES: Record<Urgency, { dot: string; text: string; ring: string }> = {
@@ -64,15 +64,11 @@ export function UpcomingRenewals() {
                   onClick={() => openEdit(sub)}
                   className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-secondary/40 focus-ring"
                 >
-                  <span
-                    className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-lg ring-1",
-                      style.ring
-                    )}
-                    aria-hidden
-                  >
-                    {resolveLogo(sub)}
-                  </span>
+                  <SubscriptionLogo
+                    sub={sub}
+                    size={40}
+                    className={cn("ring-1", style.ring)}
+                  />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
                       <span className="truncate font-medium">{sub.name}</span>

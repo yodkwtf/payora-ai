@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 import { ThemeProvider } from "@/components/theme-provider";
 import { EditorProvider } from "@/components/editor-context";
+import { ToastProvider } from "@/components/ui/toast";
 import { AppShell } from "@/components/layout/AppShell";
 import { HydrationGate } from "@/components/hydration-gate";
 
@@ -40,7 +41,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="font-sans">
+      <body className="font-sans" suppressHydrationWarning>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -53,11 +54,13 @@ export default function RootLayout({
           >
             Skip to content
           </a>
-          <EditorProvider>
-            <AppShell>
-              <HydrationGate>{children}</HydrationGate>
-            </AppShell>
-          </EditorProvider>
+          <ToastProvider>
+            <EditorProvider>
+              <AppShell>
+                <HydrationGate>{children}</HydrationGate>
+              </AppShell>
+            </EditorProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -22,17 +22,18 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { CategoryBadge, StatusBadge } from "./badges";
+import { SubscriptionLogo } from "./SubscriptionLogo";
 import type { Subscription } from "@/lib/types";
 import {
   daysUntil,
   formatCurrency,
-  resolveLogo,
   toAnnual,
   toMonthly,
   urgencyLabel,
 } from "@/lib/utils";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useEditor } from "@/components/editor-context";
+import { useToast } from "@/components/ui/toast";
 
 interface Props {
   sub: Subscription | null;
@@ -61,6 +62,7 @@ function DetailRow({
 export function SlideOverPanel({ sub, open, onOpenChange }: Props) {
   const { deleteSubscription, setStatus } = useSubscriptions();
   const { openEdit } = useEditor();
+  const { toast } = useToast();
 
   if (!sub) return null;
 
@@ -71,9 +73,7 @@ export function SlideOverPanel({ sub, open, onOpenChange }: Props) {
       <SheetContent aria-describedby="slideover-desc">
         <SheetHeader>
           <div className="flex items-center gap-3">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-3xl" aria-hidden>
-              {resolveLogo(sub)}
-            </span>
+            <SubscriptionLogo sub={sub} size={56} />
             <div className="min-w-0">
               <SheetTitle className="truncate">{sub.name}</SheetTitle>
               <SheetDescription id="slideover-desc" className="flex items-center gap-2 pt-1">
@@ -145,15 +145,33 @@ export function SlideOverPanel({ sub, open, onOpenChange }: Props) {
               <Pencil className="h-4 w-4" /> Edit
             </Button>
             {sub.status === "Paused" ? (
-              <Button variant="secondary" onClick={() => setStatus(sub.id, "Active")}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatus(sub.id, "Active");
+                  toast({ title: "Resumed", description: sub.name });
+                }}
+              >
                 <Play className="h-4 w-4" /> Resume
               </Button>
             ) : sub.status === "Active" ? (
-              <Button variant="secondary" onClick={() => setStatus(sub.id, "Paused")}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatus(sub.id, "Paused");
+                  toast({ title: "Paused", description: sub.name, variant: "info" });
+                }}
+              >
                 <Pause className="h-4 w-4" /> Pause
               </Button>
             ) : (
-              <Button variant="secondary" onClick={() => setStatus(sub.id, "Active")}>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatus(sub.id, "Active");
+                  toast({ title: "Reactivated", description: sub.name });
+                }}
+              >
                 <Play className="h-4 w-4" /> Reactivate
               </Button>
             )}
@@ -162,8 +180,10 @@ export function SlideOverPanel({ sub, open, onOpenChange }: Props) {
             variant="ghost"
             className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => {
+              const name = sub.name;
               deleteSubscription(sub.id);
               onOpenChange(false);
+              toast({ title: "Subscription deleted", description: name, variant: "info" });
             }}
           >
             <Trash2 className="h-4 w-4" /> Delete permanently
