@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/select";
 import { LogoPicker } from "./LogoPicker";
 import { CATEGORIES, BILLING_CYCLES, STATUSES, CURRENCIES } from "@/lib/constants";
-import type { Subscription, Category } from "@/lib/types";
-import { currencySymbol } from "@/lib/utils";
+import type { Subscription, Category, Status, BillingCycle } from "@/lib/types";
+import { currencySymbol, renewalFromCycle } from "@/lib/utils";
 
 export type SubscriptionDraft = Omit<Subscription, "id">;
 
@@ -32,12 +32,6 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-function nextMonthISO() {
-  const d = new Date();
-  d.setMonth(d.getMonth() + 1);
-  return d.toISOString().slice(0, 10);
-}
-
 export function SubscriptionForm({
   initial,
   defaultCurrency = "INR",
@@ -45,24 +39,46 @@ export function SubscriptionForm({
   onCancel,
   formId = "subscription-form",
 }: Props) {
-  const [values, setValues] = React.useState<SubscriptionDraft>(() => ({
-    name: initial?.name ?? "",
-    logo: initial?.logo ?? "",
-    category: initial?.category ?? "SaaS",
-    amount: initial?.amount ?? 0,
-    currency: initial?.currency ?? defaultCurrency,
-    billingCycle: initial?.billingCycle ?? "Monthly",
-    nextRenewalDate: initial?.nextRenewalDate ?? nextMonthISO(),
-    startDate: initial?.startDate ?? todayISO(),
-    notes: initial?.notes ?? "",
-    status: initial?.status ?? "Active",
-    url: initial?.url ?? "",
-  }));
+  const [values, setValues] = React.useState<SubscriptionDraft>(() => {
+    const startDate = initial?.startDate ?? todayISO();
+    const billingCycle = initial?.billingCycle ?? "Monthly";
+    return {
+      name: initial?.name ?? "",
+      logo: initial?.logo ?? "",
+      category: initial?.category ?? "SaaS",
+      amount: initial?.amount ?? 0,
+      currency: initial?.currency ?? defaultCurrency,
+      billingCycle,
+      nextRenewalDate: initial?.nextRenewalDate ?? renewalFromCycle(startDate, billingCycle),
+      startDate,
+      notes: initial?.notes ?? "",
+      status: initial?.status ?? "Active",
+      url: initial?.url ?? "",
+    };
+  });
 
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   function set<K extends keyof SubscriptionDraft>(key: K, value: SubscriptionDraft[K]) {
     setValues((v) => ({ ...v, [key]: value }));
+  }
+
+  // Keep the renewal date in step with the start date + billing cycle so
+  // switching to Quarterly/Annually moves the renewal accordingly.
+  function setBillingCycle(cycle: BillingCycle) {
+    setValues((v) => ({
+      ...v,
+      billingCycle: cycle,
+      nextRenewalDate: renewalFromCycle(v.startDate, cycle),
+    }));
+  }
+
+  function setStartDate(startDate: string) {
+    setValues((v) => ({
+      ...v,
+      startDate,
+      nextRenewalDate: renewalFromCycle(startDate, v.billingCycle),
+    }));
   }
 
   function validate(): boolean {
@@ -133,7 +149,7 @@ export function SubscriptionForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="category">Category</Label>
-          <Select value={values.category} onValueChange={(v) => set("category", v as any)}>
+          <Select value={values.category} onValueChange={(v) => set("category", v as Category)}>
             <SelectTrigger id="category" aria-label="Category">
               <SelectValue />
             </SelectTrigger>
@@ -148,7 +164,7 @@ export function SubscriptionForm({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="status">Status</Label>
-          <Select value={values.status} onValueChange={(v) => set("status", v as any)}>
+          <Select value={values.status} onValueChange={(v) => set("status", v as Status)}>
             <SelectTrigger id="status" aria-label="Status">
               <SelectValue />
             </SelectTrigger>
@@ -195,7 +211,7 @@ export function SubscriptionForm({
             <SelectContent>
               {CURRENCIES.map((c) => (
                 <SelectItem key={c.code} value={c.code}>
-                  {c.symbol} {c.code}
+                  {c.flag} {c.symbol} {c.code}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -207,7 +223,7 @@ export function SubscriptionForm({
         <Label htmlFor="billingCycle">Billing cycle</Label>
         <Select
           value={values.billingCycle}
-          onValueChange={(v) => set("billingCycle", v as any)}
+          onValueChange={(v) => setBillingCycle(v as BillingCycle)}
         >
           <SelectTrigger id="billingCycle" aria-label="Billing cycle">
             <SelectValue />
@@ -229,7 +245,7 @@ export function SubscriptionForm({
             id="startDate"
             type="date"
             value={values.startDate}
-            onChange={(e) => set("startDate", e.target.value)}
+            onChange={(e) => setStartDate(e.target.value)}
             aria-invalid={!!errors.startDate}
             aria-describedby={errors.startDate ? "startDate-error" : undefined}
           />

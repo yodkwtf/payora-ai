@@ -53,7 +53,7 @@ export function SubscriptionCard({ sub, view, threshold, onClick }: Props) {
         </div>
         <div className="hidden text-right sm:block">
           <p className={cn("text-xs font-medium", URGENCY_TEXT[urgency])}>
-            {sub.status === "Active" ? urgencyLabel(days) : "—"}
+            {sub.status === "Active" ? urgencyLabel(days) : sub.status}
           </p>
         </div>
         <div className="text-right">

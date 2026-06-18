@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ToastProvider } from "@/components/ui/toast";
+import { AuthProvider } from "@/components/auth/auth-context";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -13,21 +16,53 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   display: "swap",
 });
-import { ThemeProvider } from "@/components/theme-provider";
-import { EditorProvider } from "@/components/editor-context";
-import { ToastProvider } from "@/components/ui/toast";
-import { AppShell } from "@/components/layout/AppShell";
-import { HydrationGate } from "@/components/hydration-gate";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const title = "Payfool: Track subscriptions, kill the waste";
+const description =
+  "Payfool is a beautiful subscription tracker. See every recurring payment, get renewal reminders, visualize your spend, and use AI to spot subscriptions worth cancelling.";
 
 export const metadata: Metadata = {
-  title: "SubTrack — Subscription Tracker",
-  description:
-    "A premium, privacy-first subscription tracker. Monitor renewals, spend, and get AI-powered cancellation suggestions.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: title,
+    template: "%s · Payfool",
+  },
+  description,
+  applicationName: "Payfool",
+  keywords: [
+    "subscription tracker",
+    "subscription manager",
+    "recurring payments",
+    "renewal reminders",
+    "spend tracker",
+    "cancel subscriptions",
+    "Payfool",
+  ],
+  authors: [{ name: "Payfool" }],
+  creator: "Payfool",
+  category: "finance",
+  openGraph: {
+    type: "website",
+    siteName: "Payfool",
+    title,
+    description,
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0F1117" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0D13" },
     { media: "(prefers-color-scheme: light)", color: "#F4F6FB" },
   ],
 };
@@ -48,18 +83,8 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <a
-            href="#main-content"
-            className="sr-only z-[100] rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
-          >
-            Skip to content
-          </a>
           <ToastProvider>
-            <EditorProvider>
-              <AppShell>
-                <HydrationGate>{children}</HydrationGate>
-              </AppShell>
-            </EditorProvider>
+            <AuthProvider>{children}</AuthProvider>
           </ToastProvider>
         </ThemeProvider>
       </body>

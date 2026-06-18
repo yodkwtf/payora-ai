@@ -36,14 +36,12 @@ export function useSpendSummary(): SpendSummary {
       0
     );
 
-    // Next renewal (active only, future-most-imminent)
     const upcoming = active
       .map((s) => ({ sub: s, days: daysUntil(s.nextRenewalDate) }))
       .filter((x) => x.days >= 0)
       .sort((a, b) => a.days - b.days);
     const nextRenewal = upcoming[0] ?? null;
 
-    // Category breakdown
     const categoryBreakdown = CATEGORIES.map((category) => {
       const subs = active.filter((s) => s.category === category);
       const monthly = subs.reduce(
@@ -53,8 +51,8 @@ export function useSpendSummary(): SpendSummary {
       return { category, monthly, count: subs.length };
     }).filter((c) => c.count > 0);
 
-    // 12-month series — recurring monthly-equivalent spend as a smooth baseline,
-    // plus the actual lump charge for any annual/quarterly renewal landing in a month.
+    // Real 12-month trend: a subscription only contributes to a month once it
+    // had actually started, so the line reflects how the stack grew over time.
     const now = new Date();
     const monthlySeries = Array.from({ length: 12 }).map((_, i) => {
       const monthDate = subMonths(now, 11 - i);
@@ -63,11 +61,11 @@ export function useSpendSummary(): SpendSummary {
 
       let amount = 0;
       for (const s of active) {
+        if (new Date(s.startDate) > end) continue;
         amount += toMonthly(s.amount, s.billingCycle);
         if (s.billingCycle !== "Monthly") {
           const renewal = new Date(s.nextRenewalDate);
           if (isWithinInterval(renewal, { start, end })) {
-            // surface the real charge spike on the renewal month
             amount += s.amount - toMonthly(s.amount, s.billingCycle);
           }
         }

@@ -6,8 +6,18 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { SubscriptionLogo } from "./SubscriptionLogo";
 import { BRANDS, MONOGRAM_CHARS, LETTER_PREFIX, letterFromLogo } from "@/lib/brands";
+import { EXTRA_BRANDS } from "@/lib/brand-extra";
 import type { Category } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+type PickableBrand =
+  | { kind: "brand"; slug: string; title: string; hex: string; path: string }
+  | { kind: "extra"; slug: string; title: string; Icon: React.ComponentType<{ size?: number }> };
+
+const PICKABLE: PickableBrand[] = [
+  ...BRANDS.map((b) => ({ kind: "brand" as const, ...b })),
+  ...EXTRA_BRANDS.map((b) => ({ kind: "extra" as const, slug: b.slug, title: b.title, Icon: b.Icon })),
+].sort((a, b) => a.title.localeCompare(b.title));
 
 interface Props {
   /** Currently selected logo value: a brand slug, "letter:X", or "" (auto) */
@@ -29,8 +39,8 @@ export function LogoPicker({ value, name, category, onChange }: Props) {
 
   const results = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return BRANDS;
-    return BRANDS.filter(
+    if (!q) return PICKABLE;
+    return PICKABLE.filter(
       (b) => b.title.toLowerCase().includes(q) || b.slug.includes(q)
     );
   }, [query]);
@@ -72,7 +82,7 @@ export function LogoPicker({ value, name, category, onChange }: Props) {
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {t === "brands" ? "Brands" : "A–Z 0–9"}
+              {t === "brands" ? "Brands" : "A-Z 0-9"}
             </button>
           ))}
         </div>
@@ -103,13 +113,13 @@ export function LogoPicker({ value, name, category, onChange }: Props) {
 
             {results.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">
-                No brand matches “{query}”. Try the A–Z 0–9 tab for a letter.
+                No brand matches “{query}”. Try the A-Z 0-9 tab for a letter.
               </p>
             ) : (
               <div
                 role="listbox"
                 aria-label="Brand icons"
-                className="grid max-h-56 grid-cols-6 gap-1.5 overflow-y-auto pr-1 [overscroll-behavior:contain]"
+                className="grid max-h-56 grid-cols-6 gap-1.5 overflow-y-auto overscroll-contain pr-1"
               >
                 {results.map((b) => (
                   <button
@@ -121,18 +131,26 @@ export function LogoPicker({ value, name, category, onChange }: Props) {
                     onClick={() => pick(b.slug)}
                     className={cn(
                       "flex items-center justify-center rounded-lg p-1 transition-colors hover:bg-secondary focus-ring",
-                      "[content-visibility:auto] [contain-intrinsic-size:auto_40px]",
                       value === b.slug && "bg-primary/15 ring-1 ring-primary"
                     )}
                   >
-                    <span
-                      className="flex h-8 w-8 items-center justify-center rounded-md bg-white"
-                      aria-hidden
-                    >
-                      <svg viewBox="0 0 24 24" fill={`#${b.hex}`} className="h-[18px] w-[18px]">
-                        <path d={b.path} />
-                      </svg>
-                    </span>
+                    {b.kind === "brand" ? (
+                      <span
+                        className="flex h-8 w-8 items-center justify-center rounded-md bg-white"
+                        aria-hidden
+                      >
+                        <svg viewBox="0 0 24 24" fill={`#${b.hex}`} className="h-[18px] w-[18px]">
+                          <path d={b.path} />
+                        </svg>
+                      </span>
+                    ) : (
+                      <span
+                        className="flex h-8 w-8 items-center justify-center rounded-md bg-secondary text-foreground"
+                        aria-hidden
+                      >
+                        <b.Icon size={18} />
+                      </span>
+                    )}
                     <span className="sr-only">{b.title}</span>
                   </button>
                 ))}

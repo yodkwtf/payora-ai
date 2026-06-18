@@ -1,24 +1,19 @@
-import { resolveBrand, letterFromLogo } from "@/lib/brands";
+import { resolveLogo } from "@/lib/logo";
 import { CATEGORY_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/types";
 
 interface Props {
   sub: { name: string; logo?: string; category: Category };
-  /** Tile size in px */
   size?: number;
   className?: string;
 }
 
-/**
- * Renders a real brand logo (Simple Icons SVG on a white chip) when the
- * subscription maps to a known brand, otherwise a colored monogram tile.
- */
 export function SubscriptionLogo({ sub, size = 40, className }: Props) {
-  const brand = resolveBrand(sub);
+  const resolved = resolveLogo(sub);
   const radius = size >= 48 ? "rounded-2xl" : size >= 28 ? "rounded-xl" : "rounded-lg";
 
-  if (brand) {
+  if (resolved.kind === "brand") {
     return (
       <span
         aria-hidden
@@ -28,20 +23,33 @@ export function SubscriptionLogo({ sub, size = 40, className }: Props) {
         <svg
           viewBox="0 0 24 24"
           role="img"
-          fill={`#${brand.hex}`}
+          fill={`#${resolved.brand.hex}`}
           style={{ width: size * 0.56, height: size * 0.56 }}
         >
-          <path d={brand.path} />
+          <path d={resolved.brand.path} />
         </svg>
       </span>
     );
   }
 
-  // An explicit letter:X choice overrides the auto first-letter monogram.
-  const letter =
-    letterFromLogo(sub.logo) ?? (sub.name.trim().charAt(0).toUpperCase() || "?");
-  const color = CATEGORY_COLORS[sub.category] ?? "#94A3B8";
+  if (resolved.kind === "extra") {
+    const Icon = resolved.brand.Icon;
+    return (
+      <span
+        aria-hidden
+        className={cn(
+          "flex shrink-0 items-center justify-center bg-secondary text-foreground",
+          radius,
+          className
+        )}
+        style={{ width: size, height: size }}
+      >
+        <Icon size={Math.round(size * 0.56)} />
+      </span>
+    );
+  }
 
+  const color = CATEGORY_COLORS[sub.category] ?? "#94A3B8";
   return (
     <span
       aria-hidden
@@ -54,7 +62,7 @@ export function SubscriptionLogo({ sub, size = 40, className }: Props) {
         fontSize: size * 0.42,
       }}
     >
-      {letter}
+      {resolved.char}
     </span>
   );
 }

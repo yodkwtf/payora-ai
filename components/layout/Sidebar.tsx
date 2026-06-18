@@ -4,9 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { PanelLeftClose, PanelLeft, Wallet } from "lucide-react";
+import { PanelLeftClose, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/brand/Logo";
 import { NAV } from "./nav-config";
 
 export function Sidebar() {
@@ -20,20 +21,22 @@ export function Sidebar() {
       className="sticky top-0 hidden h-screen shrink-0 flex-col border-r border-border/60 bg-card/40 backdrop-blur-xl md:flex"
       aria-label="Primary"
     >
-      <div className="flex h-16 items-center gap-2 px-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[hsl(var(--cyan))] text-white shadow-lg shadow-primary/30">
-          <Wallet className="h-5 w-5" />
-        </div>
+      <Link
+        href="/dashboard"
+        className="flex h-16 items-center gap-2 px-4 focus-ring"
+        aria-label="Payfool dashboard"
+      >
+        <LogoMark size={36} className="shrink-0 shadow-lg shadow-primary/30" />
         {!collapsed && (
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-base font-semibold tracking-tight"
           >
-            SubTrack
+            Payfool
           </motion.span>
         )}
-      </div>
+      </Link>
 
       <nav className="flex flex-1 flex-col gap-1 px-3 py-4">
         {NAV.map((item) => {

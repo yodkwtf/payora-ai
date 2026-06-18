@@ -394,15 +394,3 @@ export function detectBrandSlug(name: string): string | null {
   }
   return null;
 }
-
-/** Resolve the brand a subscription should display (explicit logo wins). */
-export function resolveBrand(sub: {
-  name: string;
-  logo?: string;
-}): Brand | null {
-  // An explicit monogram choice (letter:X) is not a brand.
-  if (sub.logo && sub.logo.startsWith(LETTER_PREFIX)) return null;
-  if (sub.logo && BRAND_MAP[sub.logo]) return BRAND_MAP[sub.logo];
-  const detected = detectBrandSlug(sub.name);
-  return detected ? BRAND_MAP[detected] : null;
-}

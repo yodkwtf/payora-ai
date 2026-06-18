@@ -53,7 +53,7 @@ export function StatsRow() {
     },
     {
       label: "Next renewal",
-      value: summary.nextRenewal ? summary.nextRenewal.sub.name : "—",
+      value: summary.nextRenewal ? summary.nextRenewal.sub.name : "None",
       sub: summary.nextRenewal ? urgencyLabel(summary.nextRenewal.days) : "Nothing upcoming",
       icon: Timer,
       accent: "from-amber-500/20 to-amber-500/5 text-amber-400",

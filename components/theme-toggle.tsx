@@ -14,8 +14,6 @@ export function ThemeToggle() {
 
   const isDark = resolvedTheme === "dark";
 
-  // Until mounted, the theme is unknown on the server — keep the button's
-  // aria-label, handler and icon stable to avoid a hydration mismatch.
   if (!mounted) {
     return (
       <Button

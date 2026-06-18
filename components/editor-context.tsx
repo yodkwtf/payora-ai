@@ -76,10 +76,19 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
               if (editing) {
                 updateSubscription(editing.id, draft);
                 toast({ title: "Subscription updated", description: draft.name });
-              } else {
-                addSubscription(draft);
-                toast({ title: "Subscription added", description: draft.name });
+                setOpen(false);
+                return;
               }
+              const id = addSubscription(draft);
+              if (!id) {
+                toast({
+                  title: "Already tracking this",
+                  description: `${draft.name} is already in your list.`,
+                  variant: "error",
+                });
+                return;
+              }
+              toast({ title: "Subscription added", description: draft.name });
               setOpen(false);
             }}
           />

@@ -2,16 +2,18 @@
 
 import * as React from "react";
 import { useStore } from "@/lib/store";
+import { useCloudSync } from "./use-cloud-sync";
 import { Skeleton } from "@/components/ui/skeleton";
 
 /**
- * Blocks rendering of persisted-state-dependent UI until the Zustand store has
- * rehydrated from localStorage, preventing hydration mismatches and layout shift.
+ * Waits for local store rehydration and (for signed-in users) the initial cloud
+ * load before revealing data-dependent UI, preventing flashes of stale data.
  */
-export function HydrationGate({ children }: { children: React.ReactNode }) {
+export function DataBoundary({ children }: { children: React.ReactNode }) {
   const hydrated = useStore((s) => s.hydrated);
+  const { ready } = useCloudSync();
 
-  if (!hydrated) {
+  if (!hydrated || !ready) {
     return (
       <div className="space-y-6" aria-busy="true" aria-label="Loading">
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -39,7 +39,7 @@
   }
 
   .dark {
-    /* Dark mode — deep navy/slate base */
+    /* Dark mode: deep navy/slate base */
     --background: 225 21% 7%;
     --foreground: 220 20% 96%;
 

@@ -156,6 +156,7 @@ export function SubscriptionList() {
         </div>
       ) : (
         <motion.div
+          key={view}
           layout={!reduce}
           className={cn(
             view === "grid"

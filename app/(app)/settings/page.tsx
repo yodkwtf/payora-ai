@@ -1,10 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { Download, Upload, Trash2, Coins, BellRing, AlertTriangle, Sparkles } from "lucide-react";
+import {
+  Download,
+  Upload,
+  Trash2,
+  Coins,
+  BellRing,
+  AlertTriangle,
+  Sparkles,
+  UserRound,
+  LogIn,
+} from "lucide-react";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectTrigger,
@@ -23,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { useStore } from "@/lib/store";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/components/auth/auth-context";
 import { CURRENCIES, REMINDER_THRESHOLDS } from "@/lib/constants";
 import type { CurrencyCode, Subscription } from "@/lib/types";
 
@@ -35,8 +48,31 @@ export default function SettingsPage() {
   const clearAll = useStore((s) => s.clearAll);
 
   const { toast } = useToast();
+  const { isAuthed, isGuest, user } = useAuth();
   const fileRef = React.useRef<HTMLInputElement>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
+  const [nameDraft, setNameDraft] = React.useState(settings.name ?? "");
+
+  React.useEffect(() => setNameDraft(settings.name ?? ""), [settings.name]);
+
+  const handleCurrencyChange = (code: CurrencyCode) => {
+    updateSettings({ currency: code });
+    const label = CURRENCIES.find((c) => c.code === code)?.label ?? code;
+    toast({ title: "Currency updated", description: `Now showing amounts in ${label}.` });
+  };
+
+  const handleThresholdChange = (value: 3 | 7 | 14) => {
+    updateSettings({ reminderThreshold: value });
+    toast({
+      title: "Reminder updated",
+      description: `You'll be reminded ${value} days before renewals.`,
+    });
+  };
+
+  const handleSaveName = () => {
+    updateSettings({ name: nameDraft.trim() || undefined });
+    toast({ title: "Profile saved", description: "Your display name was updated." });
+  };
 
   const handleExport = () => {
     const payload = JSON.stringify({ subscriptions, settings }, null, 2);
@@ -44,7 +80,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `subtrack-export-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `payfool-export-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast({
@@ -104,8 +140,58 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <p className="text-sm text-muted-foreground">
-        Preferences and your data. Everything is stored locally in your browser.
+        {isAuthed
+          ? "Manage your profile, preferences, and data. Changes sync to your account."
+          : "Preferences and your data. Everything is stored on this device."}
       </p>
+
+      {/* Profile */}
+      <Card className="glass p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <UserRound className="h-4 w-4 text-muted-foreground" />
+          <h2 className="font-semibold">Profile</h2>
+        </div>
+
+        {isGuest ? (
+          <div className="flex flex-col items-start gap-3 rounded-lg border border-border/60 bg-secondary/30 p-4">
+            <p className="text-sm text-muted-foreground">
+              You&apos;re browsing as a guest. Create an account to set a display name and
+              sync your data across devices.
+            </p>
+            <Link href="/login">
+              <Button variant="secondary" className="gap-2">
+                <LogIn className="h-4 w-4" /> Sign in / Sign up
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="display-name">Display name</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="display-name"
+                  value={nameDraft}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  placeholder="Your name"
+                />
+                <Button
+                  onClick={handleSaveName}
+                  disabled={nameDraft.trim() === (settings.name ?? "")}
+                >
+                  Save
+                </Button>
+              </div>
+            </div>
+            {user?.email && (
+              <div className="space-y-1.5">
+                <Label>Email</Label>
+                <Input value={user.email} disabled readOnly />
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
 
       {/* Preferences */}
       <Card className="glass p-5">
@@ -118,15 +204,15 @@ export default function SettingsPage() {
             </Label>
             <Select
               value={settings.currency}
-              onValueChange={(v) => updateSettings({ currency: v as CurrencyCode })}
+              onValueChange={(v) => handleCurrencyChange(v as CurrencyCode)}
             >
-              <SelectTrigger id="currency" className="w-44">
+              <SelectTrigger id="currency" className="w-56">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {CURRENCIES.map((c) => (
                   <SelectItem key={c.code} value={c.code}>
-                    {c.symbol} {c.code} — {c.label}
+                    {c.flag} {c.symbol} {c.code} - {c.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,11 +226,9 @@ export default function SettingsPage() {
             </Label>
             <Select
               value={String(settings.reminderThreshold)}
-              onValueChange={(v) =>
-                updateSettings({ reminderThreshold: Number(v) as 3 | 7 | 14 })
-              }
+              onValueChange={(v) => handleThresholdChange(Number(v) as 3 | 7 | 14)}
             >
-              <SelectTrigger id="threshold" className="w-44">
+              <SelectTrigger id="threshold" className="w-56">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

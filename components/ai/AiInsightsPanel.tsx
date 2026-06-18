@@ -61,7 +61,6 @@ export function AiInsightsPanel() {
 
   return (
     <Card className="glass relative overflow-hidden">
-      {/* glow */}
       <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
 
       <div className="relative flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -134,7 +133,7 @@ export function AiInsightsPanel() {
             >
               {visible.length === 0 ? (
                 <p className="rounded-xl border border-border/60 bg-secondary/30 p-4 text-sm text-muted-foreground">
-                  🎉 No cuts suggested — your stack looks lean.
+                  🎉 No cuts suggested. Your stack looks lean.
                 </p>
               ) : (
                 <>

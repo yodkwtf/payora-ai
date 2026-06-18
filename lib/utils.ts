@@ -1,8 +1,14 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { differenceInCalendarDays, parseISO, isValid } from "date-fns";
+import {
+  differenceInCalendarDays,
+  parseISO,
+  isValid,
+  addMonths,
+  addYears,
+} from "date-fns";
 import type { BillingCycle, Subscription } from "./types";
-import { CURRENCY_SYMBOLS } from "./constants";
+import { CURRENCY_SYMBOLS, DEFAULT_CURRENCY } from "./constants";
 import type { CurrencyCode } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
@@ -31,32 +37,50 @@ export function toMonthly(amount: number, cycle: BillingCycle): number {
   }
 }
 
-/** Normalise to an annual amount */
 export function toAnnual(amount: number, cycle: BillingCycle): number {
   return toMonthly(amount, cycle) * 12;
 }
 
 export function formatCurrency(
   amount: number,
-  currency: CurrencyCode | string = "USD",
+  currency: CurrencyCode | string = DEFAULT_CURRENCY,
   opts: { compact?: boolean } = {}
 ): string {
-  const code = (currency in CURRENCY_SYMBOLS ? currency : "USD") as CurrencyCode;
+  const code = (currency in CURRENCY_SYMBOLS ? currency : DEFAULT_CURRENCY) as CurrencyCode;
+  const locale = code === "INR" ? "en-IN" : "en-US";
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: code,
       maximumFractionDigits: opts.compact ? 0 : 2,
       notation: opts.compact ? "compact" : "standard",
     }).format(amount);
   } catch {
-    const symbol = CURRENCY_SYMBOLS[code] ?? "$";
+    const symbol = CURRENCY_SYMBOLS[code] ?? "₹";
     return `${symbol}${amount.toFixed(2)}`;
   }
 }
 
 export function currencySymbol(currency: CurrencyCode | string): string {
-  return CURRENCY_SYMBOLS[(currency as CurrencyCode)] ?? "$";
+  return CURRENCY_SYMBOLS[currency as CurrencyCode] ?? "₹";
+}
+
+/** The next renewal date for a start date under a given billing cycle. */
+export function renewalFromCycle(startDate: string, cycle: BillingCycle): string {
+  const base = parseISO(startDate);
+  const from = isValid(base) ? base : new Date();
+  const next =
+    cycle === "Annually"
+      ? addYears(from, 1)
+      : cycle === "Quarterly"
+        ? addMonths(from, 3)
+        : addMonths(from, 1);
+  return next.toISOString().slice(0, 10);
+}
+
+/** Lower-cased, trimmed name for duplicate detection. */
+export function normalizeName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 /** Days until a renewal date (negative if past). Safe against bad input. */
@@ -83,7 +107,7 @@ export function urgencyLabel(days: number): string {
   return `in ${days} days`;
 }
 
-/** Simple fuzzy match — every char of query appears in order in target */
+/** Simple fuzzy match: every char of query appears in order in target. */
 export function fuzzyMatch(query: string, target: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;

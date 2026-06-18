@@ -5,6 +5,7 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 import { MobileNav } from "./MobileNav";
 import { QuickAddFab } from "./QuickAddFab";
+import { GuestBanner } from "./GuestBanner";
 import { PageTransition } from "@/components/page-transition";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -13,6 +14,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header />
+        <GuestBanner />
         <main
           id="main-content"
           tabIndex={-1}

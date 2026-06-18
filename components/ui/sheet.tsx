@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Slide-over panel built on Radix Dialog — keeps focus trap, Escape-to-close
+ * Slide-over panel built on Radix Dialog: keeps focus trap, Escape-to-close
  * and aria-dialog semantics while sliding in from the right.
  */
 const Sheet = DialogPrimitive.Root;

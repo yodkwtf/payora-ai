@@ -31,3 +31,32 @@
 - [ ] When I'm adding a subscription, the default cycle is monthly and so the renewal date is set to 1 month from the current date. But when I change the cycle to yearly, the renewal date is still set to 1 month from the current date. It should be set to 1 year from the current date when I change the cycle to yearly. Fix this issue. Same for quarterly.
 - [ ] Go through all the files one by one and check for typescript or linting issues and fix them. Then check those files again as sometimes the issues do not get fixed. And once it's fixed and nothing is breaking only then proceed.
 - [ ] Remove all the unnecessary comments from everywhere. Only add comments where absolutely needed.
+
+#### Next steps
+
+> Added for you to verify/decide after your own testing. Nothing here is started.
+
+**Setup to do on your side (see `guide.md` for full steps)**
+
+- [ ] Add `ANTHROPIC_API_KEY` to `.env.local` to enable the AI Insights panel.
+- [ ] Create a free Supabase project, run the SQL in `guide.md` (table + RLS), and add `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` to enable real accounts + cloud sync.
+- [ ] In Supabase, turn off "Confirm email" for quick testing (or keep it on for production).
+- [ ] Set `NEXT_PUBLIC_SITE_URL` before deploying so SEO/Open Graph links are absolute.
+
+**Verify during testing**
+
+- [ ] Guest mode: lands on the marketing page, "Continue as guest" loads sample data, guest banner shows, profile editing is gated.
+- [ ] Auth: sign up, sign out, sign back in; data persists and syncs across two browsers.
+- [ ] Currency switch updates every amount across dashboard, subscriptions, analytics, and the slide-over.
+- [ ] Adding a subscription with a duplicate name is blocked with a toast.
+- [ ] Changing the billing cycle (or start date) moves the renewal date correctly.
+- [ ] Brand picker scrolls smoothly; grid⇄list toggle no longer glitches the icons.
+- [ ] Amazon (and other uncolored brands) show a logo instead of a monogram.
+
+**Possible future enhancements (not built)**
+
+- [ ] Email/push renewal reminders (currently in-app urgency only).
+- [ ] Google / GitHub OAuth sign-in (Supabase supports it; only email/password wired up).
+- [ ] Multi-currency totals with live FX conversion (amounts are currently shown per their own currency).
+- [ ] Per-subscription history / price-change tracking.
+- [ ] PWA / installable app + offline-first polish.

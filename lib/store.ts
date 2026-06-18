@@ -1,8 +1,13 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Subscription, ActivityItem, Settings, ActivityType } from "./types";
-import { SEED_SUBSCRIPTIONS } from "./constants";
-import { uid } from "./utils";
+import { SEED_SUBSCRIPTIONS, DEFAULT_CURRENCY } from "./constants";
+import { uid, normalizeName } from "./utils";
+
+export const DEFAULT_SETTINGS: Settings = {
+  currency: DEFAULT_CURRENCY,
+  reminderThreshold: 7,
+};
 
 interface SubscriptionState {
   subscriptions: Subscription[];
@@ -10,20 +15,22 @@ interface SubscriptionState {
   settings: Settings;
   hydrated: boolean;
 
-  // CRUD
-  addSubscription: (sub: Omit<Subscription, "id">) => string;
+  addSubscription: (sub: Omit<Subscription, "id">) => string | null;
   updateSubscription: (id: string, patch: Partial<Subscription>) => void;
   deleteSubscription: (id: string) => void;
-  archiveSubscription: (id: string) => void; // soft delete -> Cancelled
+  archiveSubscription: (id: string) => void;
   setStatus: (id: string, status: Subscription["status"]) => void;
 
-  // settings
   updateSettings: (patch: Partial<Settings>) => void;
 
-  // data management
   importData: (data: { subscriptions: Subscription[]; settings?: Settings }) => void;
   loadSampleData: () => void;
   clearAll: () => void;
+  replaceAll: (data: {
+    subscriptions: Subscription[];
+    activity?: ActivityItem[];
+    settings?: Settings;
+  }) => void;
   setHydrated: (v: boolean) => void;
 }
 
@@ -46,10 +53,15 @@ export const useStore = create<SubscriptionState>()(
     (set, get) => ({
       subscriptions: SEED_SUBSCRIPTIONS,
       activity: [],
-      settings: { currency: "INR", reminderThreshold: 7 },
+      settings: DEFAULT_SETTINGS,
       hydrated: false,
 
       addSubscription: (sub) => {
+        const exists = get().subscriptions.some(
+          (s) => s.status !== "Cancelled" && normalizeName(s.name) === normalizeName(sub.name)
+        );
+        if (exists) return null;
+
         const id = uid();
         const newSub: Subscription = { ...sub, id };
         set((state) => ({
@@ -135,13 +147,20 @@ export const useStore = create<SubscriptionState>()(
         set({
           subscriptions: [],
           activity: [],
-          settings: { currency: "INR", reminderThreshold: 7 },
+          settings: DEFAULT_SETTINGS,
         }),
+
+      replaceAll: ({ subscriptions, activity, settings }) =>
+        set((state) => ({
+          subscriptions,
+          activity: activity ?? [],
+          settings: settings ?? state.settings,
+        })),
 
       setHydrated: (v) => set({ hydrated: v }),
     }),
     {
-      name: "subscription-tracker-v1",
+      name: "payfool-v1",
       partialize: (state) => ({
         subscriptions: state.subscriptions,
         activity: state.activity,

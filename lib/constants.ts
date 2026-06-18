@@ -2,10 +2,25 @@ import type { Category, BillingCycle, Status, CurrencyCode, Subscription } from 
 
 export const CATEGORIES: Category[] = [
   "Streaming",
+  "Music",
+  "Gaming",
   "SaaS",
+  "AI Tools",
   "Developer Tools",
-  "Domain",
+  "Productivity",
+  "Design",
   "Cloud",
+  "Storage",
+  "Domain",
+  "Security",
+  "Education",
+  "Health & Fitness",
+  "News",
+  "Finance",
+  "Shopping",
+  "Food",
+  "Social",
+  "Utilities",
   "Other",
 ];
 
@@ -13,56 +28,86 @@ export const BILLING_CYCLES: BillingCycle[] = ["Monthly", "Quarterly", "Annually
 
 export const STATUSES: Status[] = ["Active", "Paused", "Cancelled"];
 
-export const CURRENCIES: { code: CurrencyCode; symbol: string; label: string }[] = [
-  { code: "USD", symbol: "$", label: "US Dollar" },
-  { code: "EUR", symbol: "€", label: "Euro" },
-  { code: "GBP", symbol: "£", label: "British Pound" },
-  { code: "INR", symbol: "₹", label: "Indian Rupee" },
+export const CURRENCIES: {
+  code: CurrencyCode;
+  symbol: string;
+  label: string;
+  flag: string;
+}[] = [
+  { code: "INR", symbol: "₹", label: "Indian Rupee", flag: "🇮🇳" },
+  { code: "USD", symbol: "$", label: "US Dollar", flag: "🇺🇸" },
+  { code: "EUR", symbol: "€", label: "Euro", flag: "🇪🇺" },
+  { code: "GBP", symbol: "£", label: "British Pound", flag: "🇬🇧" },
+  { code: "JPY", symbol: "¥", label: "Japanese Yen", flag: "🇯🇵" },
+  { code: "AUD", symbol: "A$", label: "Australian Dollar", flag: "🇦🇺" },
+  { code: "CAD", symbol: "C$", label: "Canadian Dollar", flag: "🇨🇦" },
+  { code: "SGD", symbol: "S$", label: "Singapore Dollar", flag: "🇸🇬" },
+  { code: "AED", symbol: "د.إ", label: "UAE Dirham", flag: "🇦🇪" },
+  { code: "CNY", symbol: "¥", label: "Chinese Yuan", flag: "🇨🇳" },
+  { code: "CHF", symbol: "CHF", label: "Swiss Franc", flag: "🇨🇭" },
+  { code: "BRL", symbol: "R$", label: "Brazilian Real", flag: "🇧🇷" },
+  { code: "ZAR", symbol: "R", label: "South African Rand", flag: "🇿🇦" },
+  { code: "NZD", symbol: "NZ$", label: "New Zealand Dollar", flag: "🇳🇿" },
 ];
 
-export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  INR: "₹",
-};
+export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.symbol])
+) as Record<CurrencyCode, string>;
+
+export const CURRENCY_FLAGS: Record<CurrencyCode, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.flag])
+) as Record<CurrencyCode, string>;
+
+export const DEFAULT_CURRENCY: CurrencyCode = "INR";
 
 export const REMINDER_THRESHOLDS: (3 | 7 | 14)[] = [3, 7, 14];
 
-/** Category accent colors (Tailwind-friendly hex) for badges & charts */
 export const CATEGORY_COLORS: Record<Category, string> = {
   Streaming: "#6366F1",
+  Music: "#F472B6",
+  Gaming: "#8B5CF6",
   SaaS: "#22D3EE",
+  "AI Tools": "#14B8A6",
   "Developer Tools": "#A78BFA",
-  Domain: "#F59E0B",
+  Productivity: "#0EA5E9",
+  Design: "#EC4899",
   Cloud: "#34D399",
-  Other: "#94A3B8",
+  Storage: "#10B981",
+  Domain: "#F59E0B",
+  Security: "#EF4444",
+  Education: "#FB923C",
+  "Health & Fitness": "#4ADE80",
+  News: "#94A3B8",
+  Finance: "#FBBF24",
+  Shopping: "#F87171",
+  Food: "#FB7185",
+  Social: "#38BDF8",
+  Utilities: "#64748B",
+  Other: "#9CA3AF",
 };
 
-/** Emoji fallbacks used when no logo is supplied */
 export const CATEGORY_EMOJI: Record<Category, string> = {
   Streaming: "🎬",
+  Music: "🎧",
+  Gaming: "🎮",
   SaaS: "🧩",
+  "AI Tools": "🤖",
   "Developer Tools": "🛠️",
-  Domain: "🌐",
+  Productivity: "✅",
+  Design: "🎨",
   Cloud: "☁️",
+  Storage: "🗄️",
+  Domain: "🌐",
+  Security: "🔐",
+  Education: "📚",
+  "Health & Fitness": "💪",
+  News: "📰",
+  Finance: "💳",
+  Shopping: "🛍️",
+  Food: "🍔",
+  Social: "💬",
+  Utilities: "⚙️",
   Other: "📦",
-};
-
-/** Known brand emoji to make the seed data feel real */
-export const BRAND_EMOJI: Record<string, string> = {
-  netflix: "🍿",
-  "amazon prime": "📦",
-  "github pro": "🐙",
-  github: "🐙",
-  "vercel pro": "▲",
-  vercel: "▲",
-  figma: "🎨",
-  spotify: "🎧",
-  linear: "📐",
-  notion: "📝",
-  openai: "🤖",
-  claude: "✳️",
 };
 
 export const SEED_SUBSCRIPTIONS: Subscription[] = [
@@ -71,34 +116,35 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     name: "Netflix",
     logo: "netflix",
     category: "Streaming",
-    amount: 15.99,
-    currency: "USD",
+    amount: 649,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-06-22",
     startDate: "2023-01-12",
     status: "Active",
     url: "https://netflix.com/account",
-    notes: "Standard 1080p plan.",
+    notes: "Premium 4K plan.",
   },
   {
     id: "2",
     name: "Amazon Prime",
-    category: "Streaming",
-    amount: 139,
-    currency: "USD",
+    logo: "amazonprime",
+    category: "Shopping",
+    amount: 1499,
+    currency: "INR",
     billingCycle: "Annually",
     nextRenewalDate: "2026-11-10",
     startDate: "2021-11-10",
     status: "Active",
-    url: "https://amazon.com/prime",
+    url: "https://amazon.in/prime",
   },
   {
     id: "3",
     name: "GitHub Pro",
     logo: "github",
     category: "Developer Tools",
-    amount: 4,
-    currency: "USD",
+    amount: 399,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-06-18",
     startDate: "2022-03-01",
@@ -110,8 +156,8 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     name: "Vercel Pro",
     logo: "vercel",
     category: "Cloud",
-    amount: 20,
-    currency: "USD",
+    amount: 1699,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-07-01",
     startDate: "2023-08-15",
@@ -122,9 +168,9 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     id: "5",
     name: "Figma",
     logo: "figma",
-    category: "SaaS",
-    amount: 12,
-    currency: "USD",
+    category: "Design",
+    amount: 1015,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-06-30",
     startDate: "2022-06-30",
@@ -135,8 +181,8 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     id: "6",
     name: "myapp.io",
     category: "Domain",
-    amount: 18,
-    currency: "USD",
+    amount: 1499,
+    currency: "INR",
     billingCycle: "Annually",
     nextRenewalDate: "2027-01-15",
     startDate: "2024-01-15",
@@ -146,9 +192,9 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     id: "7",
     name: "Spotify",
     logo: "spotify",
-    category: "Streaming",
-    amount: 9.99,
-    currency: "USD",
+    category: "Music",
+    amount: 119,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-06-25",
     startDate: "2020-05-20",
@@ -159,9 +205,9 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
     id: "8",
     name: "Linear",
     logo: "linear",
-    category: "SaaS",
-    amount: 8,
-    currency: "USD",
+    category: "Productivity",
+    amount: 699,
+    currency: "INR",
     billingCycle: "Monthly",
     nextRenewalDate: "2026-07-05",
     startDate: "2024-02-10",
@@ -171,7 +217,7 @@ export const SEED_SUBSCRIPTIONS: Subscription[] = [
 ];
 
 export const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: "LayoutDashboard" },
+  { href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
   { href: "/subscriptions", label: "Subscriptions", icon: "CreditCard" },
   { href: "/analytics", label: "Analytics", icon: "BarChart3" },
   { href: "/settings", label: "Settings", icon: "Settings" },

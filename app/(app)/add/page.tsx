@@ -6,11 +6,13 @@ import { Card } from "@/components/ui/card";
 import { SubscriptionForm } from "@/components/subscriptions/SubscriptionForm";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useStore } from "@/lib/store";
+import { useToast } from "@/components/ui/toast";
 
 export default function AddPage() {
   const router = useRouter();
   const { addSubscription } = useSubscriptions();
   const defaultCurrency = useStore((s) => s.settings.currency);
+  const { toast } = useToast();
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
@@ -23,7 +25,16 @@ export default function AddPage() {
             defaultCurrency={defaultCurrency}
             onCancel={() => router.push("/subscriptions")}
             onSubmit={(draft) => {
-              addSubscription(draft);
+              const id = addSubscription(draft);
+              if (!id) {
+                toast({
+                  title: "Already tracking this",
+                  description: `${draft.name} is already in your list.`,
+                  variant: "error",
+                });
+                return;
+              }
+              toast({ title: "Subscription added", description: draft.name });
               router.push("/subscriptions");
             }}
           />

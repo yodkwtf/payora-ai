@@ -1,41 +1,135 @@
-"use client";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BarChart3,
+  Bell,
+  CreditCard,
+  Sparkles,
+  ShieldCheck,
+  Wand2,
+} from "lucide-react";
+import { Logo, LogoMark } from "@/components/brand/Logo";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-import dynamic from "next/dynamic";
-import { StatsRow } from "@/components/dashboard/StatsRow";
-import { UpcomingRenewals } from "@/components/dashboard/UpcomingRenewals";
-import { RecentActivity } from "@/components/dashboard/RecentActivity";
-import { Skeleton } from "@/components/ui/skeleton";
-
-// Heavy / interactive — load on the client only, after the shell paints.
-const AiInsightsPanel = dynamic(
-  () => import("@/components/ai/AiInsightsPanel").then((m) => m.AiInsightsPanel),
+const FEATURES = [
   {
-    ssr: false,
-    loading: () => <Skeleton className="h-48 rounded-2xl" />,
-  }
-);
+    icon: CreditCard,
+    title: "Everything in one place",
+    body: "Track every recurring payment with logos, categories, billing cycles and renewal dates.",
+  },
+  {
+    icon: Bell,
+    title: "Never miss a renewal",
+    body: "Color-coded urgency and a tunable reminder threshold keep surprise charges off your statement.",
+  },
+  {
+    icon: BarChart3,
+    title: "See where it goes",
+    body: "Monthly and annual spend, category breakdowns, billing cadence and your most expensive habits.",
+  },
+  {
+    icon: Wand2,
+    title: "AI cancellation insights",
+    body: "Let Claude scan your stack for overlap, high cost and low usage, with estimated annual savings.",
+  },
+];
 
-export default function DashboardPage() {
+export default function LandingPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">
-          Welcome back — here&apos;s where your money is going.
-        </p>
-      </div>
+    <div className="ambient-bg min-h-screen">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
+        <Logo />
+        <nav className="flex items-center gap-2">
+          <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+            Sign in
+          </Link>
+          <Link href="/login" className={cn(buttonVariants({ size: "sm" }))}>
+            Get started
+          </Link>
+        </nav>
+      </header>
 
-      <StatsRow />
+      <main>
+        <section className="mx-auto max-w-6xl px-5 pb-16 pt-12 text-center sm:pt-20">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-3.5 py-1.5 text-xs font-medium text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            Your subscriptions, finally under control
+          </span>
 
-      <AiInsightsPanel />
+          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-6xl">
+            Track every subscription.{" "}
+            <span className="text-gradient">Kill the waste.</span>
+          </h1>
 
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <UpcomingRenewals />
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            Payfool brings all your recurring payments together, reminds you before they
+            renew, visualizes your spend, and uses AI to flag what you can cancel.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link href="/login" className={cn(buttonVariants({ size: "lg" }), "gap-2")}>
+              Get started free <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ variant: "glass", size: "lg" }))}
+            >
+              Try the live demo
+            </Link>
+          </div>
+
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            No credit card. Explore instantly as a guest.
+          </p>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-5 pb-24">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div key={f.title} className="glass rounded-2xl p-5">
+                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-[hsl(var(--cyan))]/10 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold">{f.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{f.body}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-4xl px-5 pb-24">
+          <div className="glass relative overflow-hidden rounded-3xl p-8 text-center sm:p-12">
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-[hsl(var(--cyan))]/20 blur-3xl" />
+            <LogoMark size={44} className="mx-auto" />
+            <h2 className="mt-5 text-2xl font-bold tracking-tight sm:text-3xl">
+              Ready to stop overpaying?
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
+              Create a free account to sync your data across devices, or jump in as a guest
+              to play with sample data right away.
+            </p>
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ size: "lg" }), "mt-6 gap-2")}
+            >
+              Open Payfool <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-border/60">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 text-sm text-muted-foreground sm:flex-row">
+          <Logo markSize={24} className="[&>span]:text-base" />
+          <p>Built for people who hate surprise charges.</p>
         </div>
-        <div className="lg:col-span-2">
-          <RecentActivity />
-        </div>
-      </div>
+      </footer>
     </div>
   );
 }
