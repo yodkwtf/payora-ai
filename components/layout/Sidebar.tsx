@@ -23,7 +23,7 @@ export function Sidebar() {
       <Link
         href="/dashboard"
         className="flex h-16 items-center gap-2 px-4 focus-ring"
-        aria-label="Payora dashboard"
+        aria-label="PayoraAI dashboard"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -39,7 +39,7 @@ export function Sidebar() {
             animate={{ opacity: 1 }}
             className="text-base font-semibold tracking-tight"
           >
-            Payora
+            PayoraAI
           </motion.span>
         )}
       </Link>

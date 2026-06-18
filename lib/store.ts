@@ -160,7 +160,7 @@ export const useStore = create<SubscriptionState>()(
       setHydrated: (v) => set({ hydrated: v }),
     }),
     {
-      name: "payora-v1",
+      name: "payoraai-v1",
       partialize: (state) => ({
         subscriptions: state.subscriptions,
         activity: state.activity,

@@ -1,9 +1,9 @@
-# Payora - Setup Guide
+# PayoraAI - Setup Guide
 
-This is a complete, step-by-step setup for running Payora locally and deploying it.
+This is a complete, step-by-step setup for running PayoraAI locally and deploying it.
 Everything that needs a key or external account is covered here.
 
-Payora works out of the box with **zero setup** in guest mode (data stays in your
+PayoraAI works out of the box with **zero setup** in guest mode (data stays in your
 browser). The steps below unlock the optional extras:
 
 - **AI Insights**: needs an Anthropic API key.
@@ -78,7 +78,7 @@ tier is plenty for a side project.
 ### 5.1 Create the project
 
 1. Go to https://supabase.com/ and sign in (GitHub login is easiest).
-2. Click **New project**. Pick a name (e.g. `payora`), set a strong database password
+2. Click **New project**. Pick a name (e.g. `payoraai`), set a strong database password
    (save it somewhere), and choose the region closest to you.
 3. Wait about 2 minutes for it to provision.
 
@@ -96,7 +96,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
 
 ### 5.3 Create the data table (with security)
 
-Payora stores each user's whole dataset as a single JSON row, protected by Row Level
+PayoraAI stores each user's whole dataset as a single JSON row, protected by Row Level
 Security so users can only read/write their own row.
 
 1. In Supabase, open **SQL Editor -> New query**.

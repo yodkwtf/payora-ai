@@ -39,7 +39,7 @@ export default function LandingPage() {
     <div className="ambient-bg min-h-screen">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-wordmark.svg" alt="Payora" className="h-8 w-auto" />
+        <img src="/logo-wordmark.svg" alt="PayoraAI" className="h-8 w-auto" />
         <nav className="flex items-center gap-2">
           <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             Sign in
@@ -63,7 +63,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Payora brings all your recurring payments together, reminds you before they
+            PayoraAI brings all your recurring payments together, reminds you before they
             renew, visualizes your spend, and uses AI to flag what you can cancel.
           </p>
 
@@ -119,7 +119,7 @@ export default function LandingPage() {
               href="/login"
               className={cn(buttonVariants({ size: "lg" }), "mt-6 gap-2")}
             >
-              Open Payora <ArrowRight className="h-4 w-4" />
+              Open PayoraAI <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>
@@ -128,7 +128,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 py-6 text-sm text-muted-foreground sm:flex-row">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-wordmark.svg" alt="Payora" className="h-6 w-auto" />
+          <img src="/logo-wordmark.svg" alt="PayoraAI" className="h-6 w-auto" />
           <p>Built for people who hate surprise charges.</p>
         </div>
       </footer>

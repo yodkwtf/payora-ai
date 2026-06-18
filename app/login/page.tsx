@@ -63,16 +63,16 @@ export default function LoginPage() {
   return (
     <div className="ambient-bg flex min-h-screen flex-col">
       <header className="mx-auto w-full max-w-6xl px-5 py-5">
-        <Link href="/" aria-label="Payora home" className="inline-flex">
+        <Link href="/" aria-label="PayoraAI home" className="inline-flex">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-wordmark.svg" alt="Payora" className="h-8 w-auto" />
+          <img src="/logo-wordmark.svg" alt="PayoraAI" className="h-8 w-auto" />
         </Link>
       </header>
 
       <main className="flex flex-1 items-center justify-center px-5 pb-16">
         <Card className="glass w-full max-w-md p-6 sm:p-8">
           <h1 className="text-xl font-bold tracking-tight">
-            {mode === "signin" ? "Sign in to Payora" : "Create your account"}
+            {mode === "signin" ? "Sign in to PayoraAI" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "signin"
@@ -141,7 +141,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
-            {mode === "signin" ? "New to Payora?" : "Already have an account?"}{" "}
+            {mode === "signin" ? "New to PayoraAI?" : "Already have an account?"}{" "}
             <button
               type="button"
               onClick={() => setMode(mode === "signin" ? "signup" : "signin")}

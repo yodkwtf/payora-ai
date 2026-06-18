@@ -1,11 +1,13 @@
-# 💸 Payora - Subscription Tracker
+# 💸 PayoraAI - Subscription Tracker
 
-Track every subscription, see where your money goes, and kill the waste. Payora gives
+Track every subscription, see where your money goes, and kill the waste. PayoraAI gives
 you a premium dashboard for recurring payments, renewal reminders, spend analytics, and
 AI-powered cancellation suggestions.
 
 Works instantly as a **guest** (data stays on your device), or **sign in** to sync your
 data across devices via Supabase.
+
+## Live Preview
 
 ## Stack
 
