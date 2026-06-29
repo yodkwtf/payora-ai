@@ -6,9 +6,18 @@ Everything that needs a key or external account is covered here.
 PayoraAI works out of the box with **zero setup** in guest mode (data stays in your
 browser). The steps below unlock the optional extras:
 
-- **AI Insights**: needs an Anthropic API key.
-- **Accounts + cloud sync**: needs a free Supabase project.
+- **AI features** (Insights, Ask AI, and Add-form auto-fill): need an Anthropic API key.
+- **Accounts + cloud sync**: need a free Supabase project.
+- **Google / GitHub sign-in**: needs the providers enabled in Supabase (section 5.6).
 - **SEO / social preview**: needs your deployed site URL.
+
+These work with **no setup at all**:
+
+- **Multi-currency totals** convert via a free, key-less exchange-rate API (`/api/fx`),
+  falling back to bundled rates offline.
+- **Renewal reminders** use the browser's notification permission (no server needed).
+- **Installable PWA + offline mode** ship with the app.
+- **Country flags** render as SVGs (from flagcdn.com) so they show on Windows too.
 
 ---
 
@@ -48,14 +57,24 @@ after changing it.
 
 | Variable | Required? | What it does |
 | -------- | --------- | ------------ |
-| `ANTHROPIC_API_KEY` | optional | Powers the "Analyse my subscriptions" AI panel. |
+| `ANTHROPIC_API_KEY` | optional | Powers all AI features (Insights, Ask AI, Add-form auto-fill). |
 | `NEXT_PUBLIC_SUPABASE_URL` | optional | Enables real accounts + cloud sync. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | optional | Public Supabase key (safe to ship; protected by RLS). |
 | `NEXT_PUBLIC_SITE_URL` | optional | Your production URL, used for SEO/Open Graph absolute links. |
 
+There are **no other keys to set**. FX conversion, reminders, and the PWA need nothing.
+
 ---
 
-## 4. AI Insights (Anthropic), optional
+## 4. AI features (Anthropic), optional
+
+One key unlocks every AI feature:
+
+- **AI Insights** on the dashboard ("Analyse my subscriptions") - cancellation suggestions.
+- **Ask AI** (input at the bottom of the AI panel) - free-form questions about your stack.
+- **AI auto-fill** in the Add/Edit form - guesses the category + billing cycle from a name.
+
+Steps:
 
 1. Go to https://console.anthropic.com/ and sign in.
 2. Open **Settings -> API keys -> Create key**. Copy it (starts with `sk-ant-`).
@@ -63,10 +82,11 @@ after changing it.
    ```
    ANTHROPIC_API_KEY=sk-ant-your-key-here
    ```
-4. Restart the dev server. The AI panel on the dashboard will now work.
+4. Restart the dev server. The AI features will now work.
 
-> The app uses the `claude-sonnet-4-6` model server-side via `app/api/ai-suggest`.
-> Without a key, every other feature still works; only the AI panel is disabled.
+> The app uses the `claude-sonnet-4-6` model server-side via the routes under
+> `app/api/ai-*`. The key is read on the server only and never exposed to the browser.
+> Without a key, every other feature still works; only the AI buttons are disabled.
 
 ---
 
@@ -136,6 +156,36 @@ Restart `npm run dev`, go to **Sign in -> Create an account**, and register. You
 syncs to Supabase and follows you across devices and browsers. The amber "guest" banner
 disappears once you're signed in.
 
+### 5.6 Google / GitHub sign-in (optional)
+
+The **Continue with Google** and **Continue with GitHub** buttons appear automatically once
+Supabase is configured. They only work after you enable the provider in Supabase:
+
+**GitHub**
+
+1. On GitHub, go to **Settings -> Developer settings -> OAuth Apps -> New OAuth App**.
+2. Set **Authorization callback URL** to
+   `https://<your-project-ref>.supabase.co/auth/v1/callback` (copy the exact value from the
+   next step). Homepage URL can be your site URL.
+3. In Supabase, open **Authentication -> Sign In / Providers -> GitHub**, toggle it on, and
+   paste the **Client ID** and **Client Secret** from the GitHub OAuth App. Supabase shows
+   the callback URL to use in step 2.
+
+**Google**
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/), create an **OAuth 2.0
+   Client ID** (type: Web application).
+2. Add the Supabase callback URL (`https://<project-ref>.supabase.co/auth/v1/callback`) under
+   **Authorized redirect URIs**.
+3. In Supabase, open **Authentication -> Sign In / Providers -> Google**, toggle it on, and
+   paste the **Client ID** and **Client Secret**.
+
+**Both**
+
+- Under **Authentication -> URL Configuration**, make sure your site URL
+  (`http://localhost:3000` for dev, your domain in prod) is in **Site URL** / **Redirect
+  URLs**. The app sends users back to `/dashboard` after a successful login.
+
 ---
 
 ## 6. Deploy (Netlify)
@@ -163,32 +213,66 @@ is environment variables.**
 > to unlock AI Insights and real accounts.
 >
 > Do **not** add `output: "export"` to `next.config.mjs` for Netlify: static export would
-> disable the `/api/ai-suggest` serverless function. The default build is correct.
+> disable the API routes (AI + FX serverless functions). The default build is correct.
 
 ---
 
-## 7. Troubleshooting
+## 7. Features that need no setup
+
+These work as soon as the app runs - nothing to configure:
+
+- **Multi-currency totals.** Each subscription keeps its own currency; the dashboard and
+  analytics convert everything into your **default currency** (Settings -> Preferences) so
+  totals add up correctly. Rates come from a free, key-less API via `app/api/fx`, cached for
+  12 hours, with bundled fallback rates if the network is unavailable.
+- **Renewal reminders.** Turn on **Settings -> Preferences -> Renewal reminders**. The
+  browser asks for notification permission, then PayoraAI notifies you about renewals within
+  your threshold while the app is open (once per subscription per day).
+  - True email / closed-app push needs an external mail or push service plus a scheduler
+    (e.g. a cron job hitting an email provider). That backend is intentionally out of scope
+    for this client-only app; the in-app reminder above covers the no-server case.
+- **Install as an app (PWA).** A web manifest and service worker ship with the app, so
+  supported browsers offer **Install** and the app works offline for already-visited pages.
+  The service worker only registers in a production build (`npm run build && npm start`),
+  not in `npm run dev`.
+
+---
+
+## 8. Troubleshooting
 
 | Symptom | Fix |
 | ------- | --- |
-| "Accounts aren't set up yet" notice on the login page | `NEXT_PUBLIC_SUPABASE_*` vars are missing or the dev server wasn't restarted after editing `.env.local`. |
+| Dev note about Supabase keys on the login page | Shown in development only. Add `NEXT_PUBLIC_SUPABASE_*` and restart, or ignore it and use guest mode. |
 | Sign-up succeeds but can't sign in | "Confirm email" is on: check your inbox, or disable it (step 5.4). |
-| AI panel says key not configured | Add `ANTHROPIC_API_KEY` to `.env.local` and restart. |
+| Google/GitHub button does nothing or errors | Enable the provider in Supabase and add the callback + redirect URLs (step 5.6). |
+| AI buttons say key not configured | Add `ANTHROPIC_API_KEY` to `.env.local` and restart. |
 | Data not syncing | Confirm the SQL in 5.3 ran and the RLS policy exists. Check the browser console for Supabase errors. |
-| Social preview image is blank | Set `NEXT_PUBLIC_SITE_URL` and redeploy; the image is generated at `/opengraph-image`. |
+| Renewal notifications never appear | Allow notifications for the site in your browser, keep the toggle on, and keep a tab open. |
+| Totals look off across currencies | They're converted to your default currency; rates are approximate. Check `app/api/fx` is reachable. |
+| Social preview image is blank | Set `NEXT_PUBLIC_SITE_URL` and redeploy. The image is the static `public/og-image.png`. |
 
 ---
 
-## 8. Where things live
+## 9. Where things live
 
 ```
 app/                  routes
-  (app)/              protected app (dashboard, subscriptions, analytics, settings, add)
+  (app)/              protected app (dashboard, subscriptions, analytics, settings)
   login/              sign in / sign up / guest
   page.tsx            public landing page
-  opengraph-image.tsx generated 1200x630 social image
+  api/ai-suggest/     AI cancellation suggestions
+  api/ai-ask/         AI free-form Q&A about your subscriptions
+  api/ai-categorize/  AI category + cycle guess for the Add form
+  api/fx/             exchange rates (cached, with fallback)
+  manifest.ts         PWA web manifest        robots.ts / sitemap.ts  SEO
 components/auth/      auth context, route gate, cloud sync
+components/fx-rates-loader.tsx     background FX refresh
+components/renewal-reminders.tsx   browser renewal notifications
+components/sw-register.tsx         service-worker registration (prod only)
+public/sw.js          offline service worker
+public/og-image.png   1200x630 social image
 lib/supabase.ts       Supabase client (null when unconfigured)
 lib/cloud.ts          load/save the per-user JSON blob
+lib/fx.ts             currency conversion + fallback rates
 lib/store.ts          Zustand store (local cache + guest storage)
 ```

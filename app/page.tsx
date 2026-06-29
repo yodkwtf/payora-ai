@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -10,6 +11,22 @@ import {
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "PayoraAI - AI Subscription Tracker & Spend Analytics",
+  },
+  description:
+    "PayoraAI tracks every subscription in one place: renewal reminders, spend analytics, multi-currency totals, and AI insights that flag what you can cancel. Free to try as a guest.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "PayoraAI - AI Subscription Tracker & Spend Analytics",
+    description:
+      "Track every subscription, get renewal reminders, visualize spend, and let AI flag what to cancel.",
+    url: "/",
+    type: "website",
+  },
+};
 
 const FEATURES = [
   {

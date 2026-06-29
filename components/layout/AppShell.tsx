@@ -7,6 +7,8 @@ import { MobileNav } from "./MobileNav";
 import { QuickAddFab } from "./QuickAddFab";
 import { GuestBanner } from "./GuestBanner";
 import { PageTransition } from "@/components/page-transition";
+import { FxRatesLoader } from "@/components/fx-rates-loader";
+import { RenewalReminders } from "@/components/renewal-reminders";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -27,6 +29,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
       <MobileNav />
       <QuickAddFab />
+      <FxRatesLoader />
+      <RenewalReminders />
     </div>
   );
 }

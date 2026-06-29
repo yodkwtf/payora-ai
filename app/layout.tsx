@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { ToastProvider } from '@/components/ui/toast';
 import { AuthProvider } from '@/components/auth/auth-context';
+import { ServiceWorkerRegister } from '@/components/sw-register';
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -30,6 +31,9 @@ export const metadata: Metadata = {
   },
   description,
   applicationName: 'PayoraAI',
+  alternates: { canonical: '/' },
+  formatDetection: { telephone: false, email: false, address: false },
+  appleWebApp: { capable: true, title: 'PayoraAI', statusBarStyle: 'black-translucent' },
   keywords: [
     'subscription tracker',
     'subscription manager',
@@ -92,6 +96,7 @@ export default function RootLayout({
           <ToastProvider>
             <AuthProvider>{children}</AuthProvider>
           </ToastProvider>
+          <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
     </html>

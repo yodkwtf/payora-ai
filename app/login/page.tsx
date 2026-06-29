@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight, UserRound, Info } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa6";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,25 +14,48 @@ import { useAuth } from "@/components/auth/auth-context";
 import { useToast } from "@/components/ui/toast";
 
 type Mode = "signin" | "signup";
+type Provider = "google" | "github";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { signIn, signUp, continueAsGuest, configured, isAuthed, isGuest, loading } =
-    useAuth();
+  const {
+    signIn,
+    signUp,
+    signInWithProvider,
+    continueAsGuest,
+    configured,
+    isAuthed,
+    loading,
+  } = useAuth();
 
   const [mode, setMode] = React.useState<Mode>("signin");
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [errors, setErrors] = React.useState<{ email?: string; password?: string }>({});
   const [submitting, setSubmitting] = React.useState(false);
+  const [oauthLoading, setOauthLoading] = React.useState<Provider | null>(null);
 
+  // Only signed-in (real account) users get bounced away; guests can stay here
+  // to upgrade to an account instead of being looped back to the dashboard.
   React.useEffect(() => {
-    if (!loading && (isAuthed || isGuest)) router.replace("/dashboard");
-  }, [loading, isAuthed, isGuest, router]);
+    if (!loading && isAuthed) router.replace("/dashboard");
+  }, [loading, isAuthed, router]);
+
+  const validate = () => {
+    const next: { email?: string; password?: string } = {};
+    if (!EMAIL_RE.test(email.trim())) next.email = "Enter a valid email address.";
+    if (password.length < 6) next.password = "Password must be at least 6 characters.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setSubmitting(true);
     try {
       if (mode === "signup") {
@@ -52,6 +77,21 @@ export default function LoginPage() {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleOAuth = async (provider: Provider) => {
+    setOauthLoading(provider);
+    try {
+      await signInWithProvider(provider);
+      // On success the browser redirects to the provider, so nothing else runs.
+    } catch (err) {
+      toast({
+        title: "Sign in failed",
+        description: err instanceof Error ? err.message : "Something went wrong.",
+        variant: "error",
+      });
+      setOauthLoading(null);
     }
   };
 
@@ -80,18 +120,48 @@ export default function LoginPage() {
               : "Sync your subscriptions across every device."}
           </p>
 
-          {!configured && (
+          {!configured && process.env.NODE_ENV === "development" && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                Accounts need a quick Supabase setup (see{" "}
-                <code className="rounded bg-black/20 px-1">guide.md</code>). You can still
-                explore everything as a guest below.
+                Dev note: accounts need Supabase keys (see{" "}
+                <code className="rounded bg-black/20 px-1">guide.md</code>). Guests work
+                without any setup.
               </span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+          {configured && (
+            <div className="mt-5 space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => handleOAuth("google")}
+                disabled={oauthLoading !== null}
+              >
+                <FcGoogle className="h-4 w-4" />
+                {oauthLoading === "google" ? "Redirecting…" : "Continue with Google"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => handleOAuth("github")}
+                disabled={oauthLoading !== null}
+              >
+                <FaGithub className="h-4 w-4" />
+                {oauthLoading === "github" ? "Redirecting…" : "Continue with GitHub"}
+              </Button>
+              <div className="flex items-center gap-3 py-1 text-xs text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                or use email
+                <span className="h-px flex-1 bg-border" />
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4" noValidate>
             {mode === "signup" && (
               <div className="space-y-1.5">
                 <Label htmlFor="name">Name</Label>
@@ -109,25 +179,42 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                }}
                 placeholder="you@example.com"
                 autoComplete="email"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
               />
+              {errors.email && (
+                <p id="email-error" role="alert" className="text-xs text-destructive">
+                  {errors.email}
+                </p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
-                required
-                minLength={6}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password) setErrors((p) => ({ ...p, password: undefined }));
+                }}
                 placeholder="••••••••"
                 autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "password-error" : undefined}
               />
+              {errors.password && (
+                <p id="password-error" role="alert" className="text-xs text-destructive">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             <Button type="submit" className="w-full gap-2" disabled={submitting}>
@@ -144,7 +231,10 @@ export default function LoginPage() {
             {mode === "signin" ? "New to PayoraAI?" : "Already have an account?"}{" "}
             <button
               type="button"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+              onClick={() => {
+                setMode(mode === "signin" ? "signup" : "signin");
+                setErrors({});
+              }}
               className="font-medium text-primary hover:underline focus-ring"
             >
               {mode === "signin" ? "Create an account" : "Sign in"}

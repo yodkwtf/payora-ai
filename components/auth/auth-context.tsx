@@ -17,6 +17,7 @@ interface AuthContextValue {
   displayName: string;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name?: string) => Promise<void>;
+  signInWithProvider: (provider: "google" | "github") => Promise<void>;
   signOut: () => Promise<void>;
   continueAsGuest: () => void;
 }
@@ -50,12 +51,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     sb.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+      const sessionUser = data.session?.user ?? null;
+      setUser(sessionUser);
+      if (sessionUser) {
+        localStorage.removeItem(GUEST_KEY);
+        setIsGuest(false);
+      }
       setLoading(false);
     });
 
     const { data: sub } = sb.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
+      if (sessionUser) {
+        localStorage.removeItem(GUEST_KEY);
+        setIsGuest(false);
+      }
     });
     return () => sub.subscription.unsubscribe();
   }, []);
@@ -81,6 +92,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       localStorage.removeItem(GUEST_KEY);
       setIsGuest(false);
+    },
+    []
+  );
+
+  const signInWithProvider = React.useCallback(
+    async (provider: "google" | "github") => {
+      const sb = getSupabase();
+      if (!sb) throw new Error(NOT_CONFIGURED_MSG);
+      const redirectTo =
+        typeof window !== "undefined" ? `${window.location.origin}/dashboard` : undefined;
+      const { error } = await sb.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo },
+      });
+      if (error) throw error;
     },
     []
   );
@@ -114,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     displayName,
     signIn,
     signUp,
+    signInWithProvider,
     signOut,
     continueAsGuest,
   };

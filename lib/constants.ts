@@ -33,21 +33,23 @@ export const CURRENCIES: {
   symbol: string;
   label: string;
   flag: string;
+  /** ISO 3166-1 alpha-2 code, used for SVG flags that render on every OS. */
+  country: string;
 }[] = [
-  { code: "INR", symbol: "₹", label: "Indian Rupee", flag: "🇮🇳" },
-  { code: "USD", symbol: "$", label: "US Dollar", flag: "🇺🇸" },
-  { code: "EUR", symbol: "€", label: "Euro", flag: "🇪🇺" },
-  { code: "GBP", symbol: "£", label: "British Pound", flag: "🇬🇧" },
-  { code: "JPY", symbol: "¥", label: "Japanese Yen", flag: "🇯🇵" },
-  { code: "AUD", symbol: "A$", label: "Australian Dollar", flag: "🇦🇺" },
-  { code: "CAD", symbol: "C$", label: "Canadian Dollar", flag: "🇨🇦" },
-  { code: "SGD", symbol: "S$", label: "Singapore Dollar", flag: "🇸🇬" },
-  { code: "AED", symbol: "د.إ", label: "UAE Dirham", flag: "🇦🇪" },
-  { code: "CNY", symbol: "¥", label: "Chinese Yuan", flag: "🇨🇳" },
-  { code: "CHF", symbol: "CHF", label: "Swiss Franc", flag: "🇨🇭" },
-  { code: "BRL", symbol: "R$", label: "Brazilian Real", flag: "🇧🇷" },
-  { code: "ZAR", symbol: "R", label: "South African Rand", flag: "🇿🇦" },
-  { code: "NZD", symbol: "NZ$", label: "New Zealand Dollar", flag: "🇳🇿" },
+  { code: "INR", symbol: "₹", label: "Indian Rupee", flag: "🇮🇳", country: "in" },
+  { code: "USD", symbol: "$", label: "US Dollar", flag: "🇺🇸", country: "us" },
+  { code: "EUR", symbol: "€", label: "Euro", flag: "🇪🇺", country: "eu" },
+  { code: "GBP", symbol: "£", label: "British Pound", flag: "🇬🇧", country: "gb" },
+  { code: "JPY", symbol: "¥", label: "Japanese Yen", flag: "🇯🇵", country: "jp" },
+  { code: "AUD", symbol: "A$", label: "Australian Dollar", flag: "🇦🇺", country: "au" },
+  { code: "CAD", symbol: "C$", label: "Canadian Dollar", flag: "🇨🇦", country: "ca" },
+  { code: "SGD", symbol: "S$", label: "Singapore Dollar", flag: "🇸🇬", country: "sg" },
+  { code: "AED", symbol: "د.إ", label: "UAE Dirham", flag: "🇦🇪", country: "ae" },
+  { code: "CNY", symbol: "¥", label: "Chinese Yuan", flag: "🇨🇳", country: "cn" },
+  { code: "CHF", symbol: "CHF", label: "Swiss Franc", flag: "🇨🇭", country: "ch" },
+  { code: "BRL", symbol: "R$", label: "Brazilian Real", flag: "🇧🇷", country: "br" },
+  { code: "ZAR", symbol: "R", label: "South African Rand", flag: "🇿🇦", country: "za" },
+  { code: "NZD", symbol: "NZ$", label: "New Zealand Dollar", flag: "🇳🇿", country: "nz" },
 ];
 
 export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = Object.fromEntries(
@@ -56,6 +58,10 @@ export const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = Object.fromEntries
 
 export const CURRENCY_FLAGS: Record<CurrencyCode, string> = Object.fromEntries(
   CURRENCIES.map((c) => [c.code, c.flag])
+) as Record<CurrencyCode, string>;
+
+export const CURRENCY_COUNTRY: Record<CurrencyCode, string> = Object.fromEntries(
+  CURRENCIES.map((c) => [c.code, c.country])
 ) as Record<CurrencyCode, string>;
 
 export const DEFAULT_CURRENCY: CurrencyCode = "INR";

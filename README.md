@@ -24,7 +24,7 @@ data across devices via Supabase.
 - **Recharts** for spend visualizations
 - **date-fns** for renewal math
 - **simple-icons** + **react-icons** for brand logos
-- **@anthropic-ai/sdk** (`claude-sonnet-4-6`) for AI cancellation suggestions
+- **@anthropic-ai/sdk** (`claude-sonnet-4-6`) for AI insights, Q&A, and auto-fill
 
 ## Quick start
 
@@ -42,13 +42,16 @@ Anthropic key and the (free) Supabase setup step by step.
 ## Features
 
 - **Landing page**: public, modern marketing page; every app route is protected behind it.
-- **Auth**: email/password accounts via Supabase, plus a one-click **guest mode** with mock data.
-- **Dashboard**: hero stats, color-coded upcoming renewals, recent activity, AI insights, quick-add.
-- **Subscriptions**: fuzzy search, filter (category / status / billing), sort, grid/list toggle, slide-over detail with full CRUD + pause/resume/archive. Duplicate names are blocked.
+- **Auth**: email/password and Google / GitHub OAuth via Supabase, plus a one-click **guest mode** with mock data.
+- **Dashboard**: hero stats, color-coded upcoming renewals, recent activity, AI panel, quick-add.
+- **Subscriptions**: fuzzy search, searchable category picker, filter (category / status / billing), sort, grid/list toggle, slide-over detail with full CRUD + pause/resume/archive. Duplicate names are blocked.
 - **Analytics**: real 12-month spend trend (built from each subscription's start date), category donut, billing cadence, "most expensive" & "longest held".
-- **AI Insights**: `POST /api/ai-suggest` sends your list to Claude server-side and returns dismissible cancellation suggestions with estimated annual savings.
-- **Settings**: profile (display name), default currency (14 currencies with flags, INR by default), reminder threshold, JSON import/export, clear-all. Every change confirms with a toast.
-- **Brand logos**: 160+ colored Simple Icons, plus uncolored react-icons fallbacks (Amazon, Microsoft, etc.) for brands Simple Icons no longer ships.
+- **Multi-currency**: every subscription keeps its own currency; totals convert into your default currency using live FX rates (`/api/fx`, cached, with offline fallback).
+- **AI (Claude, server-side)**: cancellation **Insights**, free-form **Ask AI** about your stack, and **auto-fill** of category + billing cycle when adding a subscription.
+- **Renewal reminders**: optional browser notifications for renewals within your threshold.
+- **PWA**: installable, with an offline service worker.
+- **Settings**: profile (display name, account info, sign out), default currency (14 currencies with SVG flags that render on every OS, INR by default), reminder threshold, renewal-notification toggle, JSON import/export, clear-all. Every change confirms with a toast.
+- **Brand logos**: 160+ colored Simple Icons, plus uncolored react-icons fallbacks (Amazon, Microsoft, Prime Video, Amazon Music, etc.) with distinct marks per sub-brand.
 
 ## Data & sync
 
@@ -59,17 +62,18 @@ Anthropic key and the (free) Supabase setup step by step.
 
 ## Accessibility & performance
 
-- Skip-to-content link, focus trap in dialogs/sheets (Radix), `aria-*` labels, keyboard-navigable.
+- Focus trap in dialogs/sheets (Radix), `aria-*` labels, keyboard-navigable controls.
 - `prefers-reduced-motion` respected via Framer Motion and a global CSS fallback.
 - Charts and the AI panel are lazy-loaded with `next/dynamic`; fonts via `next/font`.
-- SEO-ready: rich metadata, a generated 1200x630 Open Graph image, and a branded favicon.
+- Off-screen brand icons use CSS containment so the picker stays smooth.
+- SEO-ready: per-page metadata, `robots.txt` + `sitemap.xml`, a 1200x630 Open Graph image, private routes marked `noindex`, and a branded favicon.
 
 ## Project structure
 
 ```
-app/            landing (/), login, (app) protected routes, api/ai-suggest, generated icons/OG
+app/            landing (/), login, (app) protected routes, api (ai-*, fx), manifest/robots/sitemap
 components/     auth, brand, layout, dashboard, subscriptions, analytics, ai, ui (primitives)
-lib/            types, constants, utils, store, supabase, cloud, brand resolution
+lib/            types, constants, utils, store, supabase, cloud, fx, brand resolution
 hooks/          useSubscriptions, useSpendSummary
 ```
 

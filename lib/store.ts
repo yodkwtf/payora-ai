@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Subscription, ActivityItem, Settings, ActivityType } from "./types";
+import type { FxRates } from "./fx";
 import { SEED_SUBSCRIPTIONS, DEFAULT_CURRENCY } from "./constants";
 import { uid, normalizeName } from "./utils";
 
@@ -14,6 +15,9 @@ interface SubscriptionState {
   activity: ActivityItem[];
   settings: Settings;
   hydrated: boolean;
+  fxRates: FxRates | null;
+  fxUpdatedAt: string | null;
+  setFxRates: (rates: FxRates, updatedAt: string | null) => void;
 
   addSubscription: (sub: Omit<Subscription, "id">) => string | null;
   updateSubscription: (id: string, patch: Partial<Subscription>) => void;
@@ -55,6 +59,10 @@ export const useStore = create<SubscriptionState>()(
       activity: [],
       settings: DEFAULT_SETTINGS,
       hydrated: false,
+      fxRates: null,
+      fxUpdatedAt: null,
+
+      setFxRates: (rates, updatedAt) => set({ fxRates: rates, fxUpdatedAt: updatedAt }),
 
       addSubscription: (sub) => {
         const exists = get().subscriptions.some(
@@ -165,6 +173,8 @@ export const useStore = create<SubscriptionState>()(
         subscriptions: state.subscriptions,
         activity: state.activity,
         settings: state.settings,
+        fxRates: state.fxRates,
+        fxUpdatedAt: state.fxUpdatedAt,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);

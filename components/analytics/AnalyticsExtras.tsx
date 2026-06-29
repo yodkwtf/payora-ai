@@ -3,7 +3,6 @@
 import { differenceInMonths } from "date-fns";
 import { Crown, Hourglass, Repeat } from "lucide-react";
 import { useSpendSummary } from "@/hooks/useSpendSummary";
-import { useStore } from "@/lib/store";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, toAnnual } from "@/lib/utils";
 import { SubscriptionLogo } from "@/components/subscriptions/SubscriptionLogo";
@@ -55,7 +54,6 @@ export function BillingRatioCard() {
 
 export function CalloutCards() {
   const { mostExpensive, longestHeld } = useSpendSummary();
-  const currency = useStore((s) => s.settings.currency);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -71,7 +69,10 @@ export function CalloutCards() {
             <div>
               <p className="font-semibold">{mostExpensive.name}</p>
               <p className="text-sm text-muted-foreground">
-                {formatCurrency(toAnnual(mostExpensive.amount, mostExpensive.billingCycle), currency)}
+                {formatCurrency(
+                  toAnnual(mostExpensive.amount, mostExpensive.billingCycle),
+                  mostExpensive.currency
+                )}
                 /yr
               </p>
             </div>

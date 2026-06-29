@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, X, TrendingDown, AlertCircle, Wand2 } from "lucide-react";
+import { Sparkles, X, TrendingDown, AlertCircle, Wand2, Send } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AiSuggestion } from "@/lib/types";
@@ -21,6 +22,50 @@ export function AiInsightsPanel() {
   const [suggestions, setSuggestions] = React.useState<AiSuggestion[]>([]);
   const [dismissed, setDismissed] = React.useState<Set<string>>(new Set());
   const [error, setError] = React.useState<string>("");
+
+  const [question, setQuestion] = React.useState("");
+  const [askState, setAskState] = React.useState<State>("idle");
+  const [answer, setAnswer] = React.useState("");
+  const [askError, setAskError] = React.useState("");
+
+  const activeForAi = () =>
+    subscriptions
+      .filter((s) => s.status !== "Cancelled")
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        category: s.category,
+        amount: s.amount,
+        currency: s.currency,
+        billingCycle: s.billingCycle,
+        status: s.status,
+      }));
+
+  const ask = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const q = question.trim();
+    if (!q) return;
+    setAskState("loading");
+    setAskError("");
+    setAnswer("");
+    try {
+      const res = await fetch("/api/ai-ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, subscriptions: activeForAi() }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Request failed (${res.status})`);
+      }
+      const data = await res.json();
+      setAnswer(typeof data.answer === "string" ? data.answer : "");
+      setAskState("done");
+    } catch (err) {
+      setAskError(err instanceof Error ? err.message : "Something went wrong.");
+      setAskState("error");
+    }
+  };
 
   const analyze = async () => {
     setState("loading");
@@ -213,6 +258,37 @@ export function AiInsightsPanel() {
             </motion.p>
           )}
         </AnimatePresence>
+
+        <div className="mt-4 border-t border-border/60 pt-4">
+          <form onSubmit={ask} className="flex items-center gap-2">
+            <Input
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask anything, e.g. which plan costs me most per year?"
+              aria-label="Ask AI about your subscriptions"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              variant="outline"
+              disabled={askState === "loading" || !question.trim()}
+              aria-label="Ask"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
+          </form>
+          {askState === "loading" && (
+            <p className="mt-2 text-sm text-muted-foreground">Thinking…</p>
+          )}
+          {askState === "error" && (
+            <p className="mt-2 text-sm text-destructive">{askError}</p>
+          )}
+          {askState === "done" && answer && (
+            <p className="mt-3 whitespace-pre-wrap rounded-xl border border-border/60 bg-secondary/30 p-3 text-sm">
+              {answer}
+            </p>
+          )}
+        </div>
       </div>
     </Card>
   );
