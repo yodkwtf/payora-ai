@@ -7,11 +7,11 @@ AI-powered cancellation suggestions.
 Works instantly as a **guest** (data stays on your device), or **sign in** to sync your
 data across devices via Supabase.
 
+## Live Preview
+
 **Live:** https://payora-ai.netlify.app
 
 ![PayoraAI screenshot](./public/og-image.png)
-
-## Live Preview
 
 ## Stack
 
